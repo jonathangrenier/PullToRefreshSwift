@@ -26,6 +26,8 @@ public class PullToRefreshView: UIView {
     private var previousOffset: CGFloat = 0
     private var refreshCompletion: (() -> ()) = {}
     
+    public var additionalInsetTop: CGFloat = 0
+    
     var state: PullToRefreshState = PullToRefreshState.Normal {
         didSet {
             if self.state == oldValue {
@@ -79,7 +81,7 @@ public class PullToRefreshView: UIView {
    
     public override func layoutSubviews() {
         super.layoutSubviews()
-        self.arrow.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2)
+        self.arrow.center = CGPointMake(self.frame.size.width / 2, (self.frame.size.height / 2) + options.topInset)
         self.indicator.center = self.arrow.center
     }
     

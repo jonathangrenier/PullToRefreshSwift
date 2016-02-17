@@ -20,6 +20,7 @@ public class PullToRefreshOption {
     public var indicatorColor = UIColor.grayColor()
     public var autoStopTime: Double = 0.7 // 0 is not auto stop
     public var fixedSectionHeader = false  // Update the content inset for fixed section headers
+    public var topInset: CGFloat = 0
     
     public init() {
     }
