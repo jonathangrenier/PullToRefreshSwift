@@ -6,6 +6,10 @@
 //
 import UIKit
 
+public protocol PullToRefreshDelegate: class {
+    func didCompletePullToRefresh()
+}
+
 public class PullToRefreshView: UIView {
     enum PullToRefreshState {
         case Normal
@@ -24,8 +28,8 @@ public class PullToRefreshView: UIView {
     private var scrollViewBounces: Bool = false
     private var scrollViewInsets: UIEdgeInsets = UIEdgeInsetsZero
     private var previousOffset: CGFloat = 0
-    private var refreshCompletion: (() -> ()) = {}
     
+    public weak var delegate: PullToRefreshDelegate? = nil
     public var additionalInsetTop: CGFloat = 0
     
     var state: PullToRefreshState = PullToRefreshState.Normal {
@@ -53,10 +57,9 @@ public class PullToRefreshView: UIView {
         super.init(coder: aDecoder)
     }
     
-    public convenience init(options: PullToRefreshOption, frame: CGRect, refreshCompletion :(() -> ())) {
+    public convenience init(options: PullToRefreshOption, frame: CGRect) {
         self.init(frame: frame)
         self.options = options
-        self.refreshCompletion = refreshCompletion
 
         self.backgroundView = UIView(frame: CGRectMake(0, 0, frame.size.width, frame.size.height))
         self.backgroundView.backgroundColor = self.options.backgroundColor
@@ -186,7 +189,7 @@ public class PullToRefreshView: UIView {
                             self.state = .Normal
                         }
                     }
-                    self.refreshCompletion()
+                    self.delegate?.didCompletePullToRefresh()
             })
         }
     }
