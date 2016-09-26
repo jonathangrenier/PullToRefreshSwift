@@ -6,7 +6,7 @@
 //
 import UIKit
 
-public protocol PullToRefreshDelegate: class {
+public protocol PullToRefreshDelegate: AnyObject {
     func didCompletePullToRefresh()
 }
 
@@ -26,7 +26,7 @@ public class PullToRefreshView: UIView {
     private var arrow: UIImageView!
     private var indicator: UIActivityIndicatorView!
     private var scrollViewBounces: Bool = false
-    private var scrollViewInsets: UIEdgeInsets = UIEdgeInsetsZero
+    private var scrollViewInsets = UIEdgeInsets.zero
     private var previousOffset: CGFloat = 0
     
     public weak var delegate: PullToRefreshDelegate? = nil
@@ -61,39 +61,39 @@ public class PullToRefreshView: UIView {
         self.init(frame: frame)
         self.options = options
 
-        self.backgroundView = UIView(frame: CGRectMake(0, 0, frame.size.width, frame.size.height))
+        self.backgroundView = UIView(frame: CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height))
         self.backgroundView.backgroundColor = self.options.backgroundColor
-        self.backgroundView.autoresizingMask = UIViewAutoresizing.FlexibleWidth
+        self.backgroundView.autoresizingMask = .flexibleWidth
         self.addSubview(backgroundView)
         
-        self.arrow = UIImageView(frame: CGRectMake(0, 0, 30, 30))
-        self.arrow.autoresizingMask = [.FlexibleLeftMargin, .FlexibleRightMargin]
+        self.arrow = UIImageView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        self.arrow.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin]
         
-        self.arrow.image = UIImage(named: PullToRefreshConst.imageName, inBundle: NSBundle(forClass: self.dynamicType), compatibleWithTraitCollection: nil)
+        self.arrow.image = UIImage(named: PullToRefreshConst.imageName, in: Bundle(for: type(of: self)), compatibleWith: nil)
         self.addSubview(arrow)
         
-        self.indicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
+        self.indicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)
         self.indicator.bounds = self.arrow.bounds
         self.indicator.autoresizingMask = self.arrow.autoresizingMask
         self.indicator.hidesWhenStopped = true
         self.indicator.color = options.indicatorColor
         self.addSubview(indicator)
         
-        self.autoresizingMask = .FlexibleWidth
+        self.autoresizingMask = .flexibleWidth
     }
    
     public override func layoutSubviews() {
         super.layoutSubviews()
-        self.arrow.center = CGPointMake(self.frame.size.width / 2, (self.frame.size.height / 2) + options.topInset)
+        self.arrow.center = CGPoint(x: self.frame.size.width / 2, y: (self.frame.size.height / 2) + options.topInset)
         self.indicator.center = self.arrow.center
     }
-    
-    public override func willMoveToSuperview(superView: UIView!) {
+
+    public override func willMove(toSuperview newSuperview: UIView?) {
         
         superview?.removeObserver(self, forKeyPath: contentOffsetKeyPath, context: &kvoContext)
         
-        if let scrollView = superView as? UIScrollView {
-            scrollView.addObserver(self, forKeyPath: contentOffsetKeyPath, options: .Initial, context: &kvoContext)
+        if let scrollView = newSuperview as? UIScrollView {
+            scrollView.addObserver(self, forKeyPath: contentOffsetKeyPath, options: .initial, context: &kvoContext)
         }
     }
     
@@ -104,9 +104,8 @@ public class PullToRefreshView: UIView {
     }
     
     // MARK: KVO
-    
-    public override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<()>) {
-        
+
+    public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if (context == &kvoContext && keyPath == contentOffsetKeyPath) {
             if let scrollView = object as? UIScrollView {
                 
@@ -118,7 +117,7 @@ public class PullToRefreshView: UIView {
                 // Update the content inset for fixed section headers
                 if self.options.fixedSectionHeader && self.state == .Refreshing {
                     if (scrollView.contentOffset.y > 0) {
-                        scrollView.contentInset = UIEdgeInsetsZero;
+                        scrollView.contentInset = .zero;
                     }
                     return
                 }
@@ -148,7 +147,7 @@ public class PullToRefreshView: UIView {
                 if (offsetWithoutInsets < -self.frame.size.height) {
                     
                     // pulling or refreshing
-                    if (scrollView.dragging == false && self.state != .Refreshing) {
+                    if (scrollView.isDragging == false && self.state != .Refreshing) {
                         self.state = .Refreshing
                     } else if (self.state != .Refreshing) {
                         self.arrowRotation()
@@ -161,7 +160,7 @@ public class PullToRefreshView: UIView {
                 self.previousOffset = scrollView.contentOffset.y
             }
         } else {
-            super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
+            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
     }
     
@@ -169,7 +168,7 @@ public class PullToRefreshView: UIView {
     
     private func startAnimating() {
         self.indicator.startAnimating()
-        self.arrow.hidden = true
+        self.arrow.isHidden = true
         
         if let scrollView = superview as? UIScrollView {
             scrollViewBounces = scrollView.bounces
@@ -179,13 +178,12 @@ public class PullToRefreshView: UIView {
             insets.top += self.frame.size.height
             scrollView.contentOffset.y = self.previousOffset
             scrollView.bounces = false
-            UIView.animateWithDuration(PullToRefreshConst.animationDuration, delay: 0, options:[], animations: {
+            UIView.animate(withDuration: PullToRefreshConst.animationDuration, delay: 0, options:[], animations: {
                 scrollView.contentInset = insets
-                scrollView.contentOffset = CGPointMake(scrollView.contentOffset.x, -insets.top)
+                scrollView.contentOffset = CGPoint(x: scrollView.contentOffset.x, y: -insets.top)
                 }, completion: {finished in
                     if self.options.autoStopTime != 0 {
-                        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(self.options.autoStopTime * Double(NSEC_PER_SEC)))
-                        dispatch_after(time, dispatch_get_main_queue()) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + self.options.autoStopTime) {
                             self.state = .Normal
                         }
                     }
@@ -196,29 +194,29 @@ public class PullToRefreshView: UIView {
     
     private func stopAnimating() {
         self.indicator.stopAnimating()
-        self.arrow.transform = CGAffineTransformIdentity
-        self.arrow.hidden = false
+        self.arrow.transform = CGAffineTransform.identity
+        self.arrow.isHidden = false
         
         if let scrollView = superview as? UIScrollView {
             scrollView.bounces = self.scrollViewBounces
-            UIView.animateWithDuration(PullToRefreshConst.animationDuration, animations: { () -> Void in
+            UIView.animate(withDuration: PullToRefreshConst.animationDuration, animations: { () -> Void in
                 scrollView.contentInset = self.scrollViewInsets
                 }) { (Bool) -> Void in
                     
             }
         }
     }
-    
+
     private func arrowRotation() {
-        UIView.animateWithDuration(0.2, delay: 0, options:[], animations: {
+        UIView.animate(withDuration: 0.2, delay: 0, options:[], animations: {
             // -0.0000001 for the rotation direction control
-            self.arrow.transform = CGAffineTransformMakeRotation(CGFloat(M_PI-0.0000001))
+            self.arrow.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI-0.0000001))
         }, completion:nil)
     }
     
     private func arrowRotationBack() {
-        UIView.animateWithDuration(0.2, delay: 0, options:[], animations: {
-            self.arrow.transform = CGAffineTransformIdentity
+        UIView.animate(withDuration: 0.2, delay: 0, options:[], animations: {
+            self.arrow.transform = CGAffineTransform.identity
             }, completion:nil)
     }
 }

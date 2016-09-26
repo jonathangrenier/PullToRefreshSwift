@@ -15,13 +15,9 @@ public extension UIScrollView {
             return pullToRefreshView as? PullToRefreshView
         }
     }
-
-    public func addPullToRefresh(delegate: PullToRefreshDelegate? = nil) {
-        self.addPullToRefresh(options: PullToRefreshOption(), delegate: delegate)
-    }
     
-    public func addPullToRefresh(options options: PullToRefreshOption = PullToRefreshOption(), delegate: PullToRefreshDelegate? = nil) {
-        let refreshViewFrame = CGRectMake(0, -PullToRefreshConst.height, self.frame.size.width, PullToRefreshConst.height)
+    public func addPullToRefresh(options: PullToRefreshOption = PullToRefreshOption(), delegate: PullToRefreshDelegate? = nil) {
+        let refreshViewFrame = CGRect(x: 0, y: -PullToRefreshConst.height, width: self.frame.size.width, height: PullToRefreshConst.height)
         let refreshView = PullToRefreshView(options: options, frame: refreshViewFrame)
         refreshView.delegate = delegate
         refreshView.tag = PullToRefreshConst.tag
