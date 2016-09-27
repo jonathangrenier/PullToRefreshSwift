@@ -86,16 +86,16 @@ If you want to use the custom option, please change the PullToRefreshOption clas
 You can use this class at addPullToRefresh func option parameter.
 ```swift
 class PullToRefreshOption {
-    var backgroundColor = UIColor.clearColor()
-    var indicatorColor = UIColor.grayColor()
+    var backgroundColor = UIColor.clear
+    var indicatorColor = UIColor.gray
     var autoStopTime: Double = 0.7 // 0 is not auto stop
     var fixedSectionHeader = false  // Update the content inset for fixed section headers
 }
 ```
 
 ## Requirements
-Requires Swift1.2 and iOS 7.0 and ARC.  
-If you are developing in the swift1.1, please use branch of swift1.1.  
+-Requires Swift3.0 and iOS 8.0 and ARC.  
+-If you are developing in the Swift1.1 ~ 2.3, please use branch of Swift1.1 ~ Swift2.3.  
 
 ## Features
 - Highly customizable
